@@ -7,15 +7,13 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
-@EqualsAndHashCode
 @EntityListeners(value = AuditingEntityListener.class)
 @Table(name = "author")
-@AllArgsConstructor
+@Data
 @NoArgsConstructor
-@Getter
-@Setter
 public class AuthorModel implements BaseEntity<Long>{
 
     @Id
@@ -29,5 +27,11 @@ public class AuthorModel implements BaseEntity<Long>{
     @LastModifiedDate
     private LocalDateTime lastUpdateDate;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "author", cascade = CascadeType.ALL)
+    private List<NewsModel> news;
 
+
+    public AuthorModel(Long id) {
+        this.id = id;
+    }
 }

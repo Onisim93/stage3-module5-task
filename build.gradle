@@ -25,6 +25,7 @@ subprojects {
         testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$jupiterVersion"
         testImplementation "com.tngtech.archunit:archunit-junit5:$archUnitVersion"
         implementation "org.springframework.boot:spring-boot-starter-data-jpa:$springBootVersion"
+        implementation "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
 
         testImplementation "org.assertj:assertj-core:$assertJVersion"
         implementation "org.postgresql:postgresql:$postgresVersion"

@@ -30,10 +30,10 @@ public class NewsModel implements BaseEntity<Long>{
     @LastModifiedDate
     private LocalDateTime lastUpdateDate;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private AuthorModel author;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     private List<TagModel> tags;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "news")
