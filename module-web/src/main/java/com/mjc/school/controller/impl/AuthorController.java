@@ -7,23 +7,24 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.Min;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/author")
-public class AuthorControllerImpl implements AuthorRestController {
+@RequestMapping(value = "api/v1.0/author")
+public class AuthorController implements AuthorRestController {
 
     private final AuthorService authorService;
 
-    public AuthorControllerImpl(AuthorService authorService) {
+    public AuthorController(AuthorService authorService) {
         this.authorService = authorService;
     }
 
     @Override
     @GetMapping
     public ResponseEntity<List<AuthorDto>> getAllByCriteria(
-            @RequestParam(defaultValue = "20", required = false) int limit,
-            @RequestParam(defaultValue = "1", required = false) int offset,
+            @RequestParam(defaultValue = "20", required = false) @Min(1) int limit,
+            @RequestParam(defaultValue = "1", required = false) @Min(1) int offset,
             @RequestParam(defaultValue = "id", required = false) String sortBy,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String newsId) {
@@ -39,6 +40,7 @@ public class AuthorControllerImpl implements AuthorRestController {
 
     @Override
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<AuthorDto> create(@RequestBody AuthorDto createRequest) {
         return new ResponseEntity<>(authorService.create(createRequest), HttpStatus.CREATED);
     }
@@ -57,8 +59,8 @@ public class AuthorControllerImpl implements AuthorRestController {
 
     @Override
     @DeleteMapping(value = "/{id:\\d+}")
-    public ResponseEntity deleteById(@PathVariable Long id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteById(@PathVariable Long id) {
         authorService.deleteById(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

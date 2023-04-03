@@ -7,15 +7,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.Min;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/tag")
-public class TagControllerImpl implements TagRestController {
+@RequestMapping(value = "api/v1.0/tag")
+public class TagController implements TagRestController {
 
     private final TagService tagService;
 
-    public TagControllerImpl(TagService tagService) {
+    public TagController(TagService tagService) {
         this.tagService = tagService;
     }
 
@@ -27,6 +28,7 @@ public class TagControllerImpl implements TagRestController {
 
     @Override
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<TagDto> create(@RequestBody TagDto createRequest) {
         return new ResponseEntity<>(tagService.create(createRequest), HttpStatus.CREATED);
     }
@@ -45,16 +47,16 @@ public class TagControllerImpl implements TagRestController {
 
     @Override
     @DeleteMapping(value = "/{id:\\d+}")
-    public ResponseEntity deleteById(Long id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteById(Long id) {
         tagService.deleteById(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @Override
     @GetMapping
     public ResponseEntity<List<TagDto>> getAllByCriteria(
-            @RequestParam(defaultValue = "20", required = false) int limit,
-            @RequestParam(defaultValue = "1", required = false) int offset,
+            @RequestParam(defaultValue = "20", required = false) @Min(1) int limit,
+            @RequestParam(defaultValue = "1", required = false) @Min(1) int offset,
             @RequestParam(defaultValue = "id", required = false) String sortBy,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String newsId) {

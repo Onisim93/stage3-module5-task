@@ -7,15 +7,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.Min;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/comment")
-public class CommentControllerImpl implements CommentRestController {
+@RequestMapping(value = "api/v1.0/comment")
+public class CommentController implements CommentRestController {
 
     private final CommentService commentService;
 
-    public CommentControllerImpl(CommentService commentService) {
+    public CommentController(CommentService commentService) {
         this.commentService = commentService;
     }
 
@@ -28,6 +29,7 @@ public class CommentControllerImpl implements CommentRestController {
 
     @Override
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<CommentDto> create(@RequestBody CommentDto createRequest) {
         return new ResponseEntity<>(commentService.create(createRequest), HttpStatus.CREATED);
     }
@@ -47,16 +49,16 @@ public class CommentControllerImpl implements CommentRestController {
 
     @Override
     @DeleteMapping(value = "/{id:\\d+}")
-    public ResponseEntity deleteById(@PathVariable Long id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteById(@PathVariable Long id) {
         commentService.deleteById(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @Override
     @GetMapping
     public ResponseEntity<List<CommentDto>> getAllByCriteria(
-            @RequestParam(defaultValue = "20", required = false) int limit,
-            @RequestParam(defaultValue = "1", required = false) int offset,
+            @RequestParam(defaultValue = "20", required = false) @Min(1) int limit,
+            @RequestParam(defaultValue = "1", required = false) @Min(1) int offset,
             @RequestParam(defaultValue = "id", required = false) String sortBy,
             @RequestParam(required = false) String content,
             @RequestParam(required = false) String newsId) {

@@ -7,15 +7,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.Min;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/news")
-public class NewsControllerImpl implements NewsRestController {
+@RequestMapping(value = "api/v1.0/news")
+public class NewsController implements NewsRestController {
 
     private final NewsService newsService;
 
-    public NewsControllerImpl(NewsService newsService) {
+    public NewsController(NewsService newsService) {
         this.newsService = newsService;
     }
 
@@ -28,6 +29,7 @@ public class NewsControllerImpl implements NewsRestController {
 
     @Override
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<NewsDto> create(@RequestBody NewsDto createRequest) {
         return new ResponseEntity<>(newsService.create(createRequest), HttpStatus.CREATED);
     }
@@ -46,16 +48,16 @@ public class NewsControllerImpl implements NewsRestController {
 
     @Override
     @DeleteMapping(value = "/{id:\\d+}")
-    public ResponseEntity deleteById(@PathVariable Long id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteById(@PathVariable Long id) {
         newsService.deleteById(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @Override
     @GetMapping
     public ResponseEntity<List<NewsDto>> getAllByCriteria(
-            @RequestParam(defaultValue = "20", required = false) int limit,
-            @RequestParam(defaultValue = "1", required = false) int offset,
+            @RequestParam(defaultValue = "20", required = false) @Min(1) int limit,
+            @RequestParam(defaultValue = "1", required = false) @Min(1) int offset,
             @RequestParam(defaultValue = "id", required = false) String sortBy,
             @RequestParam(required = false) String tagIds,
             @RequestParam(required = false) String tagNames,

@@ -3,7 +3,11 @@ package com.mjc.school.service.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Range;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -13,10 +17,16 @@ import java.util.List;
 public class NewsDto implements BaseDto<Long>{
     private Long id;
 
+    @NotBlank
+    @Size(min = 5, max = 255)
     private String content;
+    @NotBlank
+    @Size(min = 5, max = 30)
     private String title;
     private LocalDateTime createDate;
     private LocalDateTime lastUpdateDate;
+    @NotNull
+    @Range(min = 1)
     private Long authorId;
     private List<TagDto> tagList;
     private List<Long> tagIds;
