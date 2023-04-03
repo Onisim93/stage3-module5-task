@@ -48,7 +48,7 @@ public class TagController implements TagRestController {
     @Override
     @DeleteMapping(value = "/{id:\\d+}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteById(Long id) {
+    public void deleteById(@PathVariable Long id) {
         tagService.deleteById(id);
     }
 
