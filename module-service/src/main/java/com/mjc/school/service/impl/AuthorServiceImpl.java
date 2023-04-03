@@ -4,6 +4,7 @@ import com.mjc.school.repository.impl.AuthorRepository;
 import com.mjc.school.repository.model.AuthorModel;
 import com.mjc.school.service.AuthorService;
 import com.mjc.school.service.aspect.annotation.EntityValidate;
+import com.mjc.school.service.aspect.annotation.IdValidate;
 import com.mjc.school.service.dto.AuthorDto;
 import com.mjc.school.service.exception.NoSuchEntityException;
 import com.mjc.school.service.exception.ServiceErrorCode;
@@ -46,14 +47,25 @@ public class AuthorServiceImpl implements AuthorService {
     @EntityValidate
     @Override
     public AuthorDto create(AuthorDto createRequest) {
-        return AuthorMapper.INSTANCE.toDto(repository.saveAndFlush(AuthorMapper.INSTANCE.toModel(createRequest)));
+        return AuthorMapper.INSTANCE.toDto(repository.save(AuthorMapper.INSTANCE.toModel(createRequest)));
     }
 
     @Transactional
     @EntityValidate
     @Override
     public AuthorDto update(AuthorDto updateRequest) {
-        return AuthorMapper.INSTANCE.toDto(repository.saveAndFlush(AuthorMapper.INSTANCE.toModel(updateRequest)));
+        return AuthorMapper.INSTANCE.toDto(repository.save(AuthorMapper.INSTANCE.toModel(updateRequest)));
+    }
+
+    @Override
+    @Transactional
+    @EntityValidate
+    public AuthorDto patch(AuthorDto patchRequest) {
+        AuthorModel model = repository.findById(patchRequest.getId()).orElseThrow();
+        if (patchRequest.getName() != null) {
+            model.setName(patchRequest.getName());
+        }
+        return AuthorMapper.INSTANCE.toDto(model);
     }
 
     @Transactional
@@ -62,11 +74,11 @@ public class AuthorServiceImpl implements AuthorService {
         return repository.delete(id) != 0;
     }
 
-    @Override
-    public Page<AuthorDto> getAllByCriteria(int page, int limit, String sortBy, List<String> filterParams) {
+
+    public Page<AuthorDto> getAllByCriteria(int limit, int offset, String sortBy, String newsId, String name) {
         Sort sort = Sort.by(sortBy);
-        Pageable pageable = PageRequest.of(page-1, limit, sort);
-        Specification<AuthorModel> specs = filterByCriteria(filterParams);
+        Pageable pageable = PageRequest.of(offset -1, limit, sort);
+        Specification<AuthorModel> specs = filterByCriteria(newsId, name);
 
         Page<AuthorModel> listModels = specs == null ? repository.findAll(pageable) : repository.findAll(specs, pageable);
         List<AuthorDto> listDto = AuthorMapper.INSTANCE.toListDto(listModels.getContent());
@@ -74,19 +86,19 @@ public class AuthorServiceImpl implements AuthorService {
         return new PageImpl<>(listDto, pageable, listModels.getTotalElements());
     }
 
-    private Specification<AuthorModel> filterByCriteria(List<String> parameters) {
+    @IdValidate
+    private Specification<AuthorModel> filterByCriteria(String newsId, String name) {
         Specification<AuthorModel> resultSpecs = null;
 
-        for (String parameter : parameters) {
-            String[] param = parameter.split("=");
-            Specification<AuthorModel> spec = switch (param[0]) {
-                case "name" -> AuthorSpecifications.hasNameLike(param[1].trim());
-                case "newsId" -> AuthorSpecifications.hasNewsIdLike(Long.parseLong(param[1].trim()));
-                default ->  null;
-            };
-
-            resultSpecs = resultSpecs == null ? spec : resultSpecs.and(spec);
+        if (name != null) {
+            resultSpecs = AuthorSpecifications.hasNameLike(name);
         }
+
+        if (newsId != null) {
+            Specification<AuthorModel> newsIdSpec = AuthorSpecifications.hasNewsIdLike(Long.parseLong(newsId));
+            resultSpecs = resultSpecs == null ? newsIdSpec : resultSpecs.and(newsIdSpec);
+        }
+
 
         return resultSpecs;
     }

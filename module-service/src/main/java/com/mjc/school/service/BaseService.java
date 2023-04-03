@@ -14,7 +14,7 @@ public interface BaseService<E extends BaseDto<K>, K> {
 
     E update(E updateRequest);
 
-    boolean deleteById(K id);
+    E patch(E patchRequest);
 
-    Page<E> getAllByCriteria(int page, int limit, String sortBy, List<String> filterParams);
+    boolean deleteById(K id);
 }

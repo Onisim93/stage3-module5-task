@@ -2,13 +2,16 @@ package com.mjc.school.service.impl;
 
 import com.mjc.school.repository.impl.CommentRepository;
 import com.mjc.school.repository.impl.NewsRepository;
+import com.mjc.school.repository.model.AuthorModel;
 import com.mjc.school.repository.model.CommentModel;
 import com.mjc.school.service.CommentService;
 import com.mjc.school.service.aspect.annotation.EntityValidate;
+import com.mjc.school.service.aspect.annotation.IdValidate;
 import com.mjc.school.service.dto.CommentDto;
 import com.mjc.school.service.exception.NoSuchEntityException;
 import com.mjc.school.service.exception.ServiceErrorCode;
 import com.mjc.school.service.mapper.CommentMapper;
+import com.mjc.school.service.specifications.AuthorSpecifications;
 import com.mjc.school.service.specifications.CommentSpecifications;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
@@ -57,15 +60,33 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
+    public CommentDto patch(CommentDto patchRequest) {
+        CommentModel model = commentRepository.findById(patchRequest.getId()).orElseThrow(
+                ()->new NoSuchEntityException(String.format(ServiceErrorCode.COMMENT_ID_DOES_NOT_EXIST.getMessage(), patchRequest.getId())));
+
+        if (patchRequest.getContent() != null) {
+            model.setContent(patchRequest.getContent());
+        }
+        if (patchRequest.getNewsId() != null) {
+            model.setNews(newsRepository.findById(patchRequest.getNewsId()).orElseThrow(
+                    ()->new NoSuchEntityException(String.format(ServiceErrorCode.NEWS_ID_DOES_NOT_EXIST.getMessage(), patchRequest.getNewsId()))));
+        }
+
+
+        return CommentMapper.INSTANCE.toDto(model);
+    }
+
+    @Override
+    @Transactional
     public boolean deleteById(Long id) {
         return commentRepository.delete(id) != 0;
     }
 
     @Override
-    public Page<CommentDto> getAllByCriteria(int page, int limit, String sortBy, List<String> filterParams) {
+    public Page<CommentDto> getAllByCriteria(int limit, int offset, String sortBy, String newsId, String content) {
         Sort sort = Sort.by(sortBy);
-        Pageable pageable = PageRequest.of(page-1, limit, sort);
-        Specification<CommentModel> specs = filterByCriteria(filterParams);
+        Pageable pageable = PageRequest.of(offset -1, limit, sort);
+        Specification<CommentModel> specs = filterByCriteria(newsId, content);
 
         Page<CommentModel> listModels = commentRepository.findAll(specs, pageable);
         List<CommentDto> listDtos = CommentMapper.INSTANCE.toListDto(listModels.getContent());
@@ -84,18 +105,17 @@ public class CommentServiceImpl implements CommentService {
         }
     }
 
-    private Specification<CommentModel> filterByCriteria(List<String> parameters) {
+    @IdValidate
+    private Specification<CommentModel> filterByCriteria(String newsId, String content) {
         Specification<CommentModel> resultSpecs = null;
 
-        for (String parameter : parameters) {
-            String[] param = parameter.split("=");
-            Specification<CommentModel> spec = switch (param[0]) {
-                case "content" -> CommentSpecifications.hasContentLike(param[1].trim());
-                case "newsId" -> CommentSpecifications.hasNewsIdLike(Long.parseLong(param[1].trim()));
-                default ->  null;
-            };
+        if (content != null) {
+            resultSpecs = CommentSpecifications.hasContentLike(content);
+        }
 
-            resultSpecs = resultSpecs == null ? spec : resultSpecs.and(spec);
+        if (newsId != null) {
+            Specification<CommentModel> newsIdSpec = CommentSpecifications.hasNewsIdLike(Long.parseLong(newsId));
+            resultSpecs = resultSpecs == null ? newsIdSpec : resultSpecs.and(newsIdSpec);
         }
 
         return resultSpecs;

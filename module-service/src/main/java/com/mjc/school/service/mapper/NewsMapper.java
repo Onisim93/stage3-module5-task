@@ -21,7 +21,6 @@ public interface NewsMapper {
         newsModel.setId(newsDto.getId());
         newsModel.setAuthor(new AuthorModel(newsDto.getAuthorId()));
         newsModel.setContent(newsDto.getContent());
-        newsModel.setTags(TagMapper.INSTANCE.toListModel(newsDto.getTagList()));
         newsModel.setTitle(newsDto.getTitle());
         newsModel.setTags(newsDto.getTagIds().stream().map(TagModel::new).collect(Collectors.toList()));
 

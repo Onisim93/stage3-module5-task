@@ -4,6 +4,8 @@ import com.mjc.school.service.dto.AuthorDto;
 import com.mjc.school.service.dto.CommentDto;
 import com.mjc.school.service.dto.NewsDto;
 import com.mjc.school.service.dto.TagDto;
+import com.mjc.school.service.exception.ServiceErrorCode;
+import com.mjc.school.service.exception.ValidatorException;
 import com.mjc.school.service.validation.AuthorValidator;
 import com.mjc.school.service.validation.CommentValidator;
 import com.mjc.school.service.validation.NewsValidator;
@@ -14,6 +16,10 @@ import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.NumberUtils;
+import org.springframework.util.StringUtils;
+
+import java.util.regex.Pattern;
 
 
 @Aspect
@@ -36,6 +42,25 @@ public class ValidationAspect {
 
     @Pointcut("@annotation(com.mjc.school.service.aspect.annotation.EntityValidate)")
     public void validate(){}
+
+    @Pointcut("@annotation(com.mjc.school.service.aspect.annotation.IdValidate)")
+    public void idValidate(){}
+
+    @Before("idValidate()")
+    public void isIdValid(JoinPoint joinPoint) {
+        Object arg = joinPoint.getArgs()[0];
+        if (arg instanceof String id) {
+            String[] ids = id.split(",");
+            Pattern pattern = Pattern.compile("\\d");
+            for (String str : ids) {
+                if (!pattern.matcher(str.trim()).matches()) {
+                    throw new ValidatorException(String.format(ServiceErrorCode.VALIDATE_INT_VALUE.getMessage(), str.trim()));
+                }
+            }
+
+        }
+
+    }
 
 
     @Before("validate()")
