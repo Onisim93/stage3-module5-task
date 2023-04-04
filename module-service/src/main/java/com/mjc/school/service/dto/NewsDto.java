@@ -17,16 +17,12 @@ import java.util.List;
 public class NewsDto implements BaseDto<Long>{
     private Long id;
 
-    @NotBlank
-    @Size(min = 5, max = 255)
     private String content;
-    @NotBlank
-    @Size(min = 5, max = 30)
+
     private String title;
     private LocalDateTime createDate;
     private LocalDateTime lastUpdateDate;
-    @NotNull
-    @Range(min = 1)
+
     private Long authorId;
     private List<TagDto> tagList;
     private List<Long> tagIds;

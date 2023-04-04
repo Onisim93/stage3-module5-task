@@ -9,8 +9,7 @@ import java.util.List;
 @Data
 public class TagDto implements BaseDto<Long>{
     private Long id;
-    @NotBlank
-    @Size(min = 3, max = 15)
+
     private String name;
 
     private List<NewsDto> news;

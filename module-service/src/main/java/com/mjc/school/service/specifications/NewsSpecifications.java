@@ -9,6 +9,7 @@ import javax.persistence.criteria.Join;
 import java.util.List;
 
 public class NewsSpecifications {
+    private NewsSpecifications(){}
 
     public static Specification<NewsModel> hasAuthorNameLike(String authorName) {
         return (root, query, cb) -> {

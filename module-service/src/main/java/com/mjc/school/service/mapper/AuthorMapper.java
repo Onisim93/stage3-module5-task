@@ -16,7 +16,6 @@ public interface AuthorMapper {
         AuthorDto dto = new AuthorDto();
         dto.setId(authorModel.getId());
         dto.setName(authorModel.getName());
-        //dto.setNews(NewsMapper.INSTANCE.toListDto(authorModel.getNews()));
         dto.setCreateDate(authorModel.getCreateDate());
         dto.setLastUpdateDate(authorModel.getLastUpdateDate());
 

@@ -12,11 +12,8 @@ import java.time.LocalDateTime;
 public class CommentDto implements BaseDto<Long>{
     private Long id;
 
-    @NotBlank
-    @Size(min = 5, max = 255)
     private String content;
-    @NotNull
-    @Range(min = 1)
+
     private Long newsId;
     private LocalDateTime createDate;
     private LocalDateTime lastUpdateDate;

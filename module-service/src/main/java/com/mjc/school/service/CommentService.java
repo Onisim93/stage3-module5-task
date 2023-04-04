@@ -1,6 +1,5 @@
 package com.mjc.school.service;
 
-import com.mjc.school.service.dto.AuthorDto;
 import com.mjc.school.service.dto.CommentDto;
 import org.springframework.data.domain.Page;
 import org.springframework.lang.Nullable;

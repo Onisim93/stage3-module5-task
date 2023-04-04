@@ -1,7 +1,6 @@
 package com.mjc.school.service;
 
 import com.mjc.school.service.dto.BaseDto;
-import org.springframework.data.domain.Page;
 
 import java.util.List;
 

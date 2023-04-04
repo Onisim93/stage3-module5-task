@@ -12,10 +12,6 @@ import java.util.List;
 @NoArgsConstructor
 public class AuthorDto implements BaseDto<Long>{
     private Long id;
-
-
-    @NotBlank
-    @Size(min = 3, max = 15)
     private String name;
     private LocalDateTime createDate;
     private LocalDateTime lastUpdateDate;

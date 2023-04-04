@@ -79,7 +79,7 @@ public class NewsServiceImpl implements NewsService {
         }
         if (patchRequest.getTagIds() != null) {
             isTagsExists(patchRequest.getTagIds());
-            model.setTags(patchRequest.getTagIds().stream().map(TagModel::new).collect(Collectors.toList()));
+            model.setTags(patchRequest.getTagIds().stream().map(TagModel::new).toList());
         }
         if (patchRequest.getAuthorId() != null) {
             isAuthorIdExists(patchRequest.getAuthorId());

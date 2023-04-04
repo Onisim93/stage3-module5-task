@@ -7,6 +7,7 @@ import org.springframework.data.jpa.domain.Specification;
 import javax.persistence.criteria.Join;
 
 public class TagSpecifications {
+    private TagSpecifications(){}
     public static Specification<TagModel> hasNameLike(String name) {
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.like(root.get("name"), "%" + name + "%");

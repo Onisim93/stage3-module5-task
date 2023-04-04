@@ -1,7 +1,5 @@
 package com.mjc.school.repository.impl;
 
-import com.mjc.school.repository.BaseRepository;
-import com.mjc.school.repository.model.AuthorModel;
 import com.mjc.school.repository.model.NewsModel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

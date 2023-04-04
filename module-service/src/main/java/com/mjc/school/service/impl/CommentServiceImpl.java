@@ -2,7 +2,6 @@ package com.mjc.school.service.impl;
 
 import com.mjc.school.repository.impl.CommentRepository;
 import com.mjc.school.repository.impl.NewsRepository;
-import com.mjc.school.repository.model.AuthorModel;
 import com.mjc.school.repository.model.CommentModel;
 import com.mjc.school.service.CommentService;
 import com.mjc.school.service.aspect.annotation.EntityValidate;
@@ -11,7 +10,6 @@ import com.mjc.school.service.dto.CommentDto;
 import com.mjc.school.service.exception.NoSuchEntityException;
 import com.mjc.school.service.exception.ServiceErrorCode;
 import com.mjc.school.service.mapper.CommentMapper;
-import com.mjc.school.service.specifications.AuthorSpecifications;
 import com.mjc.school.service.specifications.CommentSpecifications;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;

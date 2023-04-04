@@ -1,7 +1,6 @@
 package com.mjc.school.service.impl;
 
 import com.mjc.school.repository.impl.TagRepository;
-import com.mjc.school.repository.model.AuthorModel;
 import com.mjc.school.repository.model.TagModel;
 import com.mjc.school.service.TagService;
 import com.mjc.school.service.aspect.annotation.EntityValidate;
@@ -10,13 +9,11 @@ import com.mjc.school.service.dto.TagDto;
 import com.mjc.school.service.exception.NoSuchEntityException;
 import com.mjc.school.service.exception.ServiceErrorCode;
 import com.mjc.school.service.mapper.TagMapper;
-import com.mjc.school.service.specifications.AuthorSpecifications;
 import com.mjc.school.service.specifications.TagSpecifications;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.ui.Model;
 
 import java.util.List;
 
