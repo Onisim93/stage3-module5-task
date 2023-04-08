@@ -20,7 +20,7 @@ public class CustomExceptionHandler {
     @ExceptionHandler(ValidatorException.class)
     public ResponseEntity<ErrorMessage> validationException(ValidatorException e) {
         return ResponseEntity
-                .status(HttpStatus.NOT_ACCEPTABLE)
+                .status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorMessage(e.getMessage()));
     }
 }
