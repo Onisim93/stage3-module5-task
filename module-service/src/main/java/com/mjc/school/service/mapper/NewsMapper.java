@@ -6,7 +6,9 @@ import com.mjc.school.service.dto.NewsDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Mapper(componentModel = "spring", uses = {TagMapper.class, CommentMapper.class})
 public interface NewsMapper {
@@ -37,5 +39,10 @@ public interface NewsMapper {
         return newsDto;
     }
 
-    List<NewsDto> toListDto(List<NewsModel> newsModelList);
+    default List<NewsDto> toListDto(List<NewsModel> newsModelList) {
+        Set<NewsDto> resultSet = new HashSet<>();
+        newsModelList.forEach(n -> resultSet.add(toDto(n)));
+
+        return resultSet.stream().toList();
+    }
 }

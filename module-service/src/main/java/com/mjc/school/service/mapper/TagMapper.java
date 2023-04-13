@@ -6,7 +6,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Mapper(componentModel = "spring", uses = NewsMapper.class)
 public interface TagMapper {
@@ -19,7 +21,11 @@ public interface TagMapper {
     @Mapping(target = "news", ignore = true)
     TagModel toModel (TagDto tagDto);
 
-    List<TagDto> toListDto (List<TagModel> tagModelList);
+    default List<TagDto> toListDto (List<TagModel> tagModelList) {
+        Set<TagDto> resultSet = new HashSet<>();
+        tagModelList.forEach(n -> resultSet.add(toDto(n)));
 
-    List<TagModel> toListModel(List<TagDto> tagDtoList);
+        return resultSet.stream().toList();
+    }
+
 }

@@ -8,7 +8,9 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Mapper(componentModel = "spring", uses = NewsMapper.class)
 public interface AuthorMapper {
@@ -39,8 +41,18 @@ public interface AuthorMapper {
     AuthorModel toModel(AuthorDto authorDto);
 
     @IterableMapping(qualifiedByName = {"baseDto"})
-    List<AuthorDto> toListDto(List<AuthorModel> authorModelList);
+    default List<AuthorDto> toListDto(List<AuthorModel> authorModelList) {
+        Set<AuthorDto> resultSet = new HashSet<>();
+        authorModelList.forEach(a -> resultSet.add(toDto(a)));
+
+        return resultSet.stream().toList();
+    }
 
     @IterableMapping(qualifiedByName = {"dtoWithNewsCount"})
-    List<AuthorDto> toListDtoWithNewsCount(List<AuthorModel> authorModelList);
+    default List<AuthorDto> toListDtoWithNewsCount(List<AuthorModel> authorModelList) {
+        Set<AuthorDto> resultSet = new HashSet<>();
+        authorModelList.forEach(a -> resultSet.add(toDtoWithNewsCount(a)));
+
+        return resultSet.stream().toList();
+    }
 }

@@ -6,7 +6,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Mapper(componentModel = "spring")
 public interface CommentMapper {
@@ -27,6 +29,11 @@ public interface CommentMapper {
     @Mapping(target = "modified", ignore = true)
     CommentModel toModel(CommentDto commentDto);
 
-    List<CommentDto> toListDto(List<CommentModel> commentModelList);
+    default List<CommentDto> toListDto(List<CommentModel> commentModelList) {
+        Set<CommentDto> resultSet = new HashSet<>();
+        commentModelList.forEach(n -> resultSet.add(toDto(n)));
+
+        return resultSet.stream().toList();
+    }
 
 }

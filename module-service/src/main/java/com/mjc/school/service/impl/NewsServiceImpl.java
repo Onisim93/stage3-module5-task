@@ -7,7 +7,6 @@ import com.mjc.school.repository.model.NewsModel;
 import com.mjc.school.repository.model.TagModel;
 import com.mjc.school.service.NewsService;
 import com.mjc.school.service.aspect.annotation.EntityValidate;
-import com.mjc.school.service.aspect.annotation.IdValidate;
 import com.mjc.school.service.dto.NewsDto;
 import com.mjc.school.service.exception.NoSuchEntityException;
 import com.mjc.school.service.exception.ServiceErrorCode;
@@ -23,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -135,34 +133,31 @@ public class NewsServiceImpl implements NewsService {
         }
     }
 
-    @IdValidate
     private Specification<NewsModel> filterByCriteria(String tagIds, String tagNames, String content, String title, String authorName) {
         Specification<NewsModel> resultSpecs = null;
 
         if (tagIds != null && !tagIds.isBlank()) {
-            String[] ids = tagIds.split("\\?\\s,\\?\\s");
-            resultSpecs = NewsSpecifications.hasTagIdsLike(Arrays.stream(ids).map(Long::parseLong).toList());
+            resultSpecs = NewsSpecifications.hasTagIdsLike(tagIds);
         }
 
         if (tagNames != null && !tagNames.isBlank()) {
-            Specification<NewsModel> tagNamesSpec = NewsSpecifications.hasTagNamesLike(Arrays.stream(tagNames.split(",")).map(String::trim).toList());
-            resultSpecs = resultSpecs == null ? tagNamesSpec : resultSpecs.and(tagNamesSpec);
+            Specification<NewsModel> tagNamesSpec = NewsSpecifications.hasTagNamesLike(tagNames);
+            resultSpecs = tagNamesSpec.and(resultSpecs);
         }
 
         if (content != null && !content.isBlank()) {
             Specification<NewsModel> contentSpec = NewsSpecifications.hasContentLike(content.trim());
-            resultSpecs = resultSpecs == null ? contentSpec : resultSpecs.and(contentSpec);
+            resultSpecs = contentSpec.and(resultSpecs);
         }
 
         if (title != null && !title.isBlank()) {
             Specification<NewsModel> titleSpec = NewsSpecifications.hasTitleLike(title.trim());
-            resultSpecs = resultSpecs == null ? titleSpec : resultSpecs.and(titleSpec);
+            resultSpecs = titleSpec.and(resultSpecs);
         }
 
         if (authorName != null && !authorName.isBlank()) {
             Specification<NewsModel> authorNameSpec = NewsSpecifications.hasAuthorNameLike(authorName.trim());
-            resultSpecs = resultSpecs == null ? authorNameSpec : resultSpecs.and(authorNameSpec);
-
+            resultSpecs = authorNameSpec.and(resultSpecs);
         }
 
         return resultSpecs;

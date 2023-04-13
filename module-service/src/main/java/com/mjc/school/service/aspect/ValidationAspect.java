@@ -4,8 +4,6 @@ import com.mjc.school.service.dto.AuthorDto;
 import com.mjc.school.service.dto.CommentDto;
 import com.mjc.school.service.dto.NewsDto;
 import com.mjc.school.service.dto.TagDto;
-import com.mjc.school.service.exception.ServiceErrorCode;
-import com.mjc.school.service.exception.ValidatorException;
 import com.mjc.school.service.validation.AuthorValidator;
 import com.mjc.school.service.validation.CommentValidator;
 import com.mjc.school.service.validation.NewsValidator;
@@ -16,8 +14,6 @@ import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.regex.Pattern;
 
 
 @Aspect
@@ -41,24 +37,6 @@ public class ValidationAspect {
     @Pointcut("@annotation(com.mjc.school.service.aspect.annotation.EntityValidate)")
     public void validate(){}
 
-    @Pointcut("@annotation(com.mjc.school.service.aspect.annotation.IdValidate)")
-    public void idValidate(){}
-
-    @Before("idValidate()")
-    public void isIdValid(JoinPoint joinPoint) {
-        Object arg = joinPoint.getArgs()[0];
-        if (arg instanceof String id) {
-            String[] ids = id.split(",");
-            Pattern pattern = Pattern.compile("\\d");
-            for (String str : ids) {
-                if (!pattern.matcher(str.trim()).matches()) {
-                    throw new ValidatorException(String.format(ServiceErrorCode.VALIDATE_INT_VALUE.getMessage(), str.trim()));
-                }
-            }
-        }
-
-    }
-
 
     @Before("validate()")
     public void entityValidate(JoinPoint joinPoint) {
@@ -67,20 +45,35 @@ public class ValidationAspect {
 
 
         if (arg instanceof NewsDto newsDto) {
-            if (!isUpdateMethod) newsValidator.validate(newsDto);
-            else newsValidator.validateUpdatedDto(newsDto);
-
+            newsValidate(newsDto, isUpdateMethod);
         } else if (arg instanceof CommentDto commentDto) {
-            if (!isUpdateMethod) commentValidator.validate(commentDto);
-            else commentValidator.validateUpdatedDto(commentDto);
-
+            commentValidate(commentDto, isUpdateMethod);
         } else if (arg instanceof AuthorDto authorDto) {
-            if (!isUpdateMethod) authorValidator.validate(authorDto);
-            else authorValidator.validateUpdatedDto(authorDto);
+            authorValidate(authorDto, isUpdateMethod);
         }
         else if (arg instanceof TagDto tagDto) {
-            if(!isUpdateMethod) tagValidator.validate(tagDto);
-            else tagValidator.validateUpdatedDto(tagDto);
+           tagValidate(tagDto, isUpdateMethod);
         }
+    }
+
+
+    private void newsValidate(NewsDto newsDto, boolean isUpdate) {
+        if (isUpdate) newsValidator.validate(newsDto);
+        else newsValidator.validateUpdatedDto(newsDto);
+    }
+
+    private void authorValidate(AuthorDto authorDto, boolean isUpdate) {
+        if (isUpdate) authorValidator.validateUpdatedDto(authorDto);
+        else authorValidator.validate(authorDto);
+    }
+
+    private void tagValidate(TagDto tagDto, boolean isUpdate) {
+        if (isUpdate) tagValidator.validateUpdatedDto(tagDto);
+        else tagValidator.validate(tagDto);
+    }
+
+    private void commentValidate(CommentDto commentDto, boolean isUpdate) {
+        if (isUpdate) commentValidator.validateUpdatedDto(commentDto);
+        else commentValidator.validate(commentDto);
     }
 }

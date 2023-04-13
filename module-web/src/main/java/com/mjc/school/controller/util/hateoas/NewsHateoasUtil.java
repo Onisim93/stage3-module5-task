@@ -17,6 +17,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 public class NewsHateoasUtil {
+
+    private NewsHateoasUtil() {}
     public static void addHateoas(NewsDto newsDto, boolean withLinkToGetAll) {
         newsDto.add(linkTo(methodOn(NewsController.class).readById(newsDto.getId())).withSelfRel());
         newsDto.add(linkTo(methodOn(NewsController.class).update(newsDto.getId(), newsDto)).withRel("update"));

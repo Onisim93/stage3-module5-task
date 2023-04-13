@@ -13,6 +13,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 public class CommentHateoasUtil {
+
+    private CommentHateoasUtil() {}
     public static void addHateoas(CommentDto commentDto, boolean withLinkToGetAll) {
         commentDto.add(linkTo(methodOn(CommentController.class).readById(commentDto.getNewsId(), commentDto.getId())).withSelfRel());
         commentDto.add(linkTo(methodOn(CommentController.class).update(commentDto.getId(), commentDto)).withRel("update"));
