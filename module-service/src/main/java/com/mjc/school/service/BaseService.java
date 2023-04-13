@@ -12,8 +12,5 @@ public interface BaseService<E extends BaseDto<K>, K> {
     E create(E createRequest);
 
     E update(E updateRequest);
-
-    E patch(E patchRequest);
-
     boolean deleteById(K id);
 }

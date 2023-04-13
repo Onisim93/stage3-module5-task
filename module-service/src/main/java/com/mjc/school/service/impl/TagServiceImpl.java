@@ -4,13 +4,16 @@ import com.mjc.school.repository.impl.TagRepository;
 import com.mjc.school.repository.model.TagModel;
 import com.mjc.school.service.TagService;
 import com.mjc.school.service.aspect.annotation.EntityValidate;
-import com.mjc.school.service.aspect.annotation.IdValidate;
 import com.mjc.school.service.dto.TagDto;
 import com.mjc.school.service.exception.NoSuchEntityException;
 import com.mjc.school.service.exception.ServiceErrorCode;
 import com.mjc.school.service.mapper.TagMapper;
 import com.mjc.school.service.specifications.TagSpecifications;
-import org.springframework.data.domain.*;
+import com.mjc.school.service.util.SortUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,19 +52,14 @@ public class TagServiceImpl implements TagService {
     @Transactional
     @EntityValidate
     public TagDto update(TagDto updateRequest) {
-        return TagMapper.INSTANCE.toDto(repository.saveAndFlush(TagMapper.INSTANCE.toModel(updateRequest)));
-    }
+        TagModel model = repository.findById(updateRequest.getId()).orElseThrow(
+                ()->new NoSuchEntityException(String.format(ServiceErrorCode.TAG_ID_DOES_NOT_EXIST.getMessage(), updateRequest.getId())));
 
-    @Override
-    @Transactional
-    public TagDto patch(TagDto patchRequest) {
-        TagModel model = repository.findById(patchRequest.getId()).orElseThrow(
-                ()->new NoSuchEntityException(String.format(ServiceErrorCode.TAG_ID_DOES_NOT_EXIST.getMessage(), patchRequest.getId())));
-
-        if (patchRequest.getName() != null) {
-            model.setName(patchRequest.getName());
+        if (updateRequest.getName() != null) {
+            model.setName(updateRequest.getName());
         }
 
+        repository.flush();
         return TagMapper.INSTANCE.toDto(model);
     }
 
@@ -72,10 +70,8 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public Page<TagDto> getAllByCriteria(int limit, int offset, String sortBy, String newsId, String name) {
-        Sort sort = Sort.by(sortBy);
-
-        Pageable pageable = PageRequest.of(offset -1, limit, sort);
+    public Page<TagDto> getAllByCriteria(int limit, int offset, String sortBy, Long newsId, String name) {
+        Pageable pageable = PageRequest.of(offset -1, limit, SortUtils.getSort(sortBy));
         Specification<TagModel> specs = filterByCriteria(newsId, name);
 
         Page<TagModel> listModels = repository.findAll(specs, pageable);
@@ -85,22 +81,16 @@ public class TagServiceImpl implements TagService {
         return new PageImpl<>(listDtos, pageable, listModels.getTotalElements());
     }
 
-    @Override
-    public List<TagDto> getAllByNewsId(Long newsId) {
-        return TagMapper.INSTANCE.toListDto(repository.findAllByNewsId(newsId));
-    }
-
-    @IdValidate
-    private Specification<TagModel> filterByCriteria(String newsId, String name) {
+    private Specification<TagModel> filterByCriteria(Long newsId, String name) {
         Specification<TagModel> resultSpecs = null;
 
 
         if (name != null) {
-            resultSpecs = TagSpecifications.hasNameLike(name);
+            resultSpecs = TagSpecifications.hasNameLike(name.trim());
         }
 
         if (newsId != null) {
-            Specification<TagModel> newsIdSpec = TagSpecifications.hasNewsIdLike(Long.parseLong(newsId));
+            Specification<TagModel> newsIdSpec = TagSpecifications.hasNewsIdLike(newsId);
             resultSpecs = resultSpecs == null ? newsIdSpec : resultSpecs.and(newsIdSpec);
         }
 

@@ -13,14 +13,18 @@ import com.mjc.school.service.exception.NoSuchEntityException;
 import com.mjc.school.service.exception.ServiceErrorCode;
 import com.mjc.school.service.mapper.NewsMapper;
 import com.mjc.school.service.specifications.NewsSpecifications;
-import org.springframework.data.domain.*;
+import com.mjc.school.service.util.SortUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class NewsServiceImpl implements NewsService {
@@ -51,43 +55,35 @@ public class NewsServiceImpl implements NewsService {
     @EntityValidate
     @Transactional
     public NewsDto create(NewsDto createRequest) {
-        isTagsExists(createRequest.getTagIds());
         isAuthorIdExists(createRequest.getAuthorId());
-        return NewsMapper.INSTANCE.toDto(newsRepository.saveAndFlush(NewsMapper.INSTANCE.toModel(createRequest)));
+        NewsModel model = NewsMapper.INSTANCE.toModel(createRequest);
+        model.setTags(getOrCreateTags(createRequest.getTagNames()));
+
+        return NewsMapper.INSTANCE.toDto(newsRepository.save(model));
     }
 
     @Override
     @EntityValidate
     @Transactional
     public NewsDto update(NewsDto updateRequest) {
-        isTagsExists(updateRequest.getTagIds());
-        isAuthorIdExists(updateRequest.getAuthorId());
-        return NewsMapper.INSTANCE.toDto(newsRepository.saveAndFlush(NewsMapper.INSTANCE.toModel(updateRequest)));
-    }
+        NewsModel model = newsRepository.findById(updateRequest.getId()).orElseThrow(
+                ()->new NoSuchEntityException(String.format(ServiceErrorCode.NEWS_ID_DOES_NOT_EXIST.getMessage(), updateRequest.getId())));
 
-    @Override
-    @Transactional
-    public NewsDto patch(NewsDto patchRequest) {
-        NewsModel model = newsRepository.findById(patchRequest.getId()).orElseThrow(
-                ()->new NoSuchEntityException(String.format(ServiceErrorCode.NEWS_ID_DOES_NOT_EXIST.getMessage(), patchRequest.getId())));
-
-        if (patchRequest.getTitle() != null) {
-            model.setTitle(patchRequest.getTitle());
+        if (updateRequest.getTitle() != null) {
+            model.setTitle(updateRequest.getTitle());
         }
-        if (patchRequest.getContent() != null) {
-            model.setContent(patchRequest.getContent());
+        if (updateRequest.getContent() != null) {
+            model.setContent(updateRequest.getContent());
         }
-        if (patchRequest.getTagIds() != null) {
-            isTagsExists(patchRequest.getTagIds());
-            model.setTags(patchRequest.getTagIds().stream().map(TagModel::new).toList());
+        if (updateRequest.getTagNames() != null) {
+            model.setTags(getOrCreateTags(updateRequest.getTagNames()));
         }
-        if (patchRequest.getAuthorId() != null) {
-            isAuthorIdExists(patchRequest.getAuthorId());
-            model.setAuthor(authorRepository.findById(patchRequest.getAuthorId()).orElseThrow(
-                    ()->new NoSuchEntityException(String.format(ServiceErrorCode.AUTHOR_ID_DOES_NOT_EXIST.getMessage(), patchRequest.getAuthorId()))));
+        if (updateRequest.getAuthorId() != null) {
+            model.setAuthor(authorRepository.findById(updateRequest.getAuthorId()).orElseThrow(
+                    ()->new NoSuchEntityException(String.format(ServiceErrorCode.AUTHOR_ID_DOES_NOT_EXIST.getMessage(), updateRequest.getAuthorId()))));
         }
 
-
+        newsRepository.flush();
         return NewsMapper.INSTANCE.toDto(model);
     }
 
@@ -99,8 +95,7 @@ public class NewsServiceImpl implements NewsService {
 
     @Override
     public Page<NewsDto> getAllByCriteria(int limit, int offset, String sortBy, String tagIds, String tagNames, String content, String title, String authorName) {
-        Sort sort = Sort.by(sortBy);
-        Pageable pageable = PageRequest.of(offset -1, limit, sort);
+        Pageable pageable = PageRequest.of(offset -1, limit, SortUtils.getSort(sortBy));
 
         Specification<NewsModel> specs = filterByCriteria(tagIds, tagNames, content, title, authorName);
         Page<NewsModel> listModels = newsRepository.findAll(specs, pageable);
@@ -109,13 +104,29 @@ public class NewsServiceImpl implements NewsService {
         return new PageImpl<>(listDtos, pageable, listModels.getTotalElements());
     }
 
+    @Override
+    public Page<NewsDto> getAllByAuthorId(Long authorId, int limit, int offset, String sortBy) {
+        isAuthorIdExists(authorId);
+        Pageable pageable = PageRequest.of(offset -1, limit, SortUtils.getSort(sortBy));
 
-    private void isTagsExists(List<Long> tagIds) {
-        for (Long id : tagIds) {
-            if (!tagRepository.existsById(id)) {
-                throw new NoSuchEntityException(String.format(ServiceErrorCode.TAG_ID_DOES_NOT_EXIST.getMessage(), id));
-            }
+        Page<NewsModel> listModels = newsRepository.findAllByAuthorId(authorId, pageable);
+        List<NewsDto> listDtos = NewsMapper.INSTANCE.toListDto(listModels.getContent());
+
+        return new PageImpl<>(listDtos, pageable, listModels.getTotalElements());
+    }
+
+
+    private List<TagModel> getOrCreateTags(List<String> tagNames) {
+        if (tagNames == null) {
+            return new ArrayList<>();
         }
+        return tagNames.stream().map(tagName -> {
+            TagModel tag = tagRepository.findByName(tagName);
+            if (tag == null) {
+                tag = tagRepository.save(new TagModel(tagName));
+            }
+            return tag;
+        }).toList();
     }
 
     private void isAuthorIdExists(Long authorId) {
@@ -128,28 +139,28 @@ public class NewsServiceImpl implements NewsService {
     private Specification<NewsModel> filterByCriteria(String tagIds, String tagNames, String content, String title, String authorName) {
         Specification<NewsModel> resultSpecs = null;
 
-        if (tagIds != null) {
-            String[] ids = tagIds.split(",");
+        if (tagIds != null && !tagIds.isBlank()) {
+            String[] ids = tagIds.split("\\?\\s,\\?\\s");
             resultSpecs = NewsSpecifications.hasTagIdsLike(Arrays.stream(ids).map(Long::parseLong).toList());
         }
 
-        if (tagNames != null) {
+        if (tagNames != null && !tagNames.isBlank()) {
             Specification<NewsModel> tagNamesSpec = NewsSpecifications.hasTagNamesLike(Arrays.stream(tagNames.split(",")).map(String::trim).toList());
             resultSpecs = resultSpecs == null ? tagNamesSpec : resultSpecs.and(tagNamesSpec);
         }
 
-        if (content != null) {
-            Specification<NewsModel> contentSpec = NewsSpecifications.hasContentLike(content);
+        if (content != null && !content.isBlank()) {
+            Specification<NewsModel> contentSpec = NewsSpecifications.hasContentLike(content.trim());
             resultSpecs = resultSpecs == null ? contentSpec : resultSpecs.and(contentSpec);
         }
 
-        if (title != null) {
-            Specification<NewsModel> titleSpec = NewsSpecifications.hasTitleLike(title);
+        if (title != null && !title.isBlank()) {
+            Specification<NewsModel> titleSpec = NewsSpecifications.hasTitleLike(title.trim());
             resultSpecs = resultSpecs == null ? titleSpec : resultSpecs.and(titleSpec);
         }
 
-        if (authorName != null) {
-            Specification<NewsModel> authorNameSpec = NewsSpecifications.hasAuthorNameLike(authorName);
+        if (authorName != null && !authorName.isBlank()) {
+            Specification<NewsModel> authorNameSpec = NewsSpecifications.hasAuthorNameLike(authorName.trim());
             resultSpecs = resultSpecs == null ? authorNameSpec : resultSpecs.and(authorNameSpec);
 
         }

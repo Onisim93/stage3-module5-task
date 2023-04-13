@@ -11,6 +11,14 @@ public class AuthorValidator extends BaseValidator<AuthorDto> {
     }
 
     @Override
+    public void validateUpdatedDto(AuthorDto objectDto) {
+        validateId(objectDto.getId());
+        if (objectDto.getName() != null) {
+            validateString(objectDto.getName(), Constants.AUTHOR_NAME.getDescription(), Constants.AUTHOR_NAME.getMinValue(), Constants.AUTHOR_NAME.getMaxValue());
+        }
+    }
+
+    @Override
     public void validateId(Long id) {
         validateNumber(id, Constants.AUTHOR_ID.getDescription());
     }

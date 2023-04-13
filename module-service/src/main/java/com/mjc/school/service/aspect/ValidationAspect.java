@@ -17,7 +17,6 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-
 import java.util.regex.Pattern;
 
 
@@ -56,7 +55,6 @@ public class ValidationAspect {
                     throw new ValidatorException(String.format(ServiceErrorCode.VALIDATE_INT_VALUE.getMessage(), str.trim()));
                 }
             }
-
         }
 
     }
@@ -65,29 +63,24 @@ public class ValidationAspect {
     @Before("validate()")
     public void entityValidate(JoinPoint joinPoint) {
         Object arg = joinPoint.getArgs()[0];
+        boolean isUpdateMethod = joinPoint.getSignature().getName().equalsIgnoreCase("update");
+
 
         if (arg instanceof NewsDto newsDto) {
-            if (!newsValidator.isNew(newsDto)) {
-                newsValidator.validateId(newsDto.getId());
-            }
-            newsValidator.validate(newsDto);
+            if (!isUpdateMethod) newsValidator.validate(newsDto);
+            else newsValidator.validateUpdatedDto(newsDto);
+
         } else if (arg instanceof CommentDto commentDto) {
-            if (!commentValidator.isNew(commentDto)) {
-                commentValidator.validateId(commentDto.getId());
-            }
-            commentValidator.validate(commentDto);
+            if (!isUpdateMethod) commentValidator.validate(commentDto);
+            else commentValidator.validateUpdatedDto(commentDto);
 
         } else if (arg instanceof AuthorDto authorDto) {
-            if (!authorValidator.isNew(authorDto)) {
-                authorValidator.validateId(authorDto.getId());
-            }
-            authorValidator.validate(authorDto);
+            if (!isUpdateMethod) authorValidator.validate(authorDto);
+            else authorValidator.validateUpdatedDto(authorDto);
         }
         else if (arg instanceof TagDto tagDto) {
-            if (!tagValidator.isNew(tagDto)) {
-                tagValidator.validateId(tagDto.getId());
-            }
-            tagValidator.validate(tagDto);
+            if(!isUpdateMethod) tagValidator.validate(tagDto);
+            else tagValidator.validateUpdatedDto(tagDto);
         }
     }
 }

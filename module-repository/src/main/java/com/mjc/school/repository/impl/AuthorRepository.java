@@ -20,5 +20,7 @@ public interface AuthorRepository extends JpaRepository<AuthorModel, Long>, JpaS
     @Query("DELETE FROM AuthorModel u WHERE u.id=:id")
     int delete(@Param("id") long id);
 
+
     Page<AuthorModel> findAll(@Nullable Specification<AuthorModel> spec, @NonNull Pageable pageable);
+
 }

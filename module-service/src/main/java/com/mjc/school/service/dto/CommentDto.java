@@ -1,20 +1,19 @@
 package com.mjc.school.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
-import org.hibernate.validator.constraints.Range;
+import org.springframework.hateoas.RepresentationModel;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @Data
-public class CommentDto implements BaseDto<Long>{
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+public class CommentDto extends RepresentationModel<CommentDto> implements BaseDto<Long>{
     private Long id;
 
     private String content;
 
     private Long newsId;
-    private LocalDateTime createDate;
-    private LocalDateTime lastUpdateDate;
+    private LocalDateTime created;
+    private LocalDateTime modified;
 }

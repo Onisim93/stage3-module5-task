@@ -16,15 +16,15 @@ public interface CommentMapper {
         CommentDto dto = new CommentDto();
         dto.setId(model.getId());
         dto.setContent(model.getContent());
-        dto.setCreateDate(model.getCreateDate());
-        dto.setLastUpdateDate(model.getLastUpdateDate());
+        dto.setCreated(model.getCreated());
+        dto.setModified(model.getModified());
         dto.setNewsId(model.getNews().getId());
 
         return dto;
     }
 
-    @Mapping(target = "createDate", ignore = true)
-    @Mapping(target = "lastUpdateDate", ignore = true)
+    @Mapping(target = "created", ignore = true)
+    @Mapping(target = "modified", ignore = true)
     CommentModel toModel(CommentDto commentDto);
 
     List<CommentDto> toListDto(List<CommentModel> commentModelList);

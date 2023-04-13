@@ -1,13 +1,14 @@
 package com.mjc.school.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
+import org.springframework.hateoas.RepresentationModel;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 import java.util.List;
 
 @Data
-public class TagDto implements BaseDto<Long>{
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+public class TagDto extends RepresentationModel<TagDto> implements BaseDto<Long>{
     private Long id;
 
     private String name;

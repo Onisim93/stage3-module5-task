@@ -6,6 +6,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.Join;
 
+
 public class CommentSpecifications {
     private CommentSpecifications(){}
     public static Specification<CommentModel> hasContentLike(String content) {

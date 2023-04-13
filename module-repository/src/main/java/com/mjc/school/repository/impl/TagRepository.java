@@ -13,8 +13,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Transactional(readOnly = true)
 public interface TagRepository extends JpaRepository<TagModel, Long>, JpaSpecificationExecutor<TagModel> {
     @Transactional
@@ -24,5 +22,5 @@ public interface TagRepository extends JpaRepository<TagModel, Long>, JpaSpecifi
 
     Page<TagModel> findAll(@Nullable Specification<TagModel> spec,@NonNull Pageable pageable);
 
-    List<TagModel> findAllByNewsId(Long newsId);
+    TagModel findByName(String name);
 }

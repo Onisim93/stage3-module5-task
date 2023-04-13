@@ -1,6 +1,7 @@
 package com.mjc.school.repository.model;
 
-import lombok.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -23,9 +24,9 @@ public class AuthorModel implements BaseEntity<Long>{
     private String name;
 
     @CreatedDate
-    private LocalDateTime createDate;
+    private LocalDateTime created;
     @LastModifiedDate
-    private LocalDateTime lastUpdateDate;
+    private LocalDateTime modified;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "author", cascade = CascadeType.ALL)
     private List<NewsModel> news;

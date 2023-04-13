@@ -23,4 +23,6 @@ public interface NewsRepository extends JpaRepository<NewsModel, Long>, JpaSpeci
     int delete(@Param("id") long id);
 
     Page<NewsModel> findAll(@Nullable Specification<NewsModel> spec,@NonNull Pageable pageable);
+
+    Page<NewsModel> findAllByAuthorId(Long authorId, @NonNull Pageable pageable);
 }

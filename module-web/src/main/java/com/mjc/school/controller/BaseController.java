@@ -1,6 +1,7 @@
 package com.mjc.school.controller;
 
 import com.mjc.school.service.dto.BaseDto;
+import org.springframework.http.ResponseEntity;
 
 public interface BaseController<E extends BaseDto<K>, K> {
 
@@ -10,8 +11,6 @@ public interface BaseController<E extends BaseDto<K>, K> {
 
     E update(K id, E updateRequest);
 
-    E patch(K id, E patchedRequest);
-
-    void deleteById(K id);
+    ResponseEntity<Void> deleteById(K id);
 
 }

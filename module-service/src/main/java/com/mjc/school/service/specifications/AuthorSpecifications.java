@@ -6,6 +6,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.Join;
 
+
 public class AuthorSpecifications {
     private AuthorSpecifications(){}
     public static Specification<AuthorModel> hasNameLike(String name) {

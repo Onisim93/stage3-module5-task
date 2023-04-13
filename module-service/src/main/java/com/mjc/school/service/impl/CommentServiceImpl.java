@@ -5,13 +5,16 @@ import com.mjc.school.repository.impl.NewsRepository;
 import com.mjc.school.repository.model.CommentModel;
 import com.mjc.school.service.CommentService;
 import com.mjc.school.service.aspect.annotation.EntityValidate;
-import com.mjc.school.service.aspect.annotation.IdValidate;
 import com.mjc.school.service.dto.CommentDto;
 import com.mjc.school.service.exception.NoSuchEntityException;
 import com.mjc.school.service.exception.ServiceErrorCode;
 import com.mjc.school.service.mapper.CommentMapper;
 import com.mjc.school.service.specifications.CommentSpecifications;
-import org.springframework.data.domain.*;
+import com.mjc.school.service.util.SortUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,25 +55,17 @@ public class CommentServiceImpl implements CommentService {
     @EntityValidate
     @Transactional
     public CommentDto update(CommentDto updateRequest) {
-        isNewsIdExists(updateRequest.getNewsId());
-        return CommentMapper.INSTANCE.toDto(commentRepository.saveAndFlush(CommentMapper.INSTANCE.toModel(updateRequest)));
-    }
+        CommentModel model = commentRepository.findById(updateRequest.getId()).orElseThrow(
+                ()->new NoSuchEntityException(String.format(ServiceErrorCode.COMMENT_ID_DOES_NOT_EXIST.getMessage(), updateRequest.getId())));
 
-    @Override
-    @Transactional
-    public CommentDto patch(CommentDto patchRequest) {
-        CommentModel model = commentRepository.findById(patchRequest.getId()).orElseThrow(
-                ()->new NoSuchEntityException(String.format(ServiceErrorCode.COMMENT_ID_DOES_NOT_EXIST.getMessage(), patchRequest.getId())));
-
-        if (patchRequest.getContent() != null) {
-            model.setContent(patchRequest.getContent());
+        if (updateRequest.getContent() != null) {
+            model.setContent(updateRequest.getContent());
         }
-        if (patchRequest.getNewsId() != null) {
-            model.setNews(newsRepository.findById(patchRequest.getNewsId()).orElseThrow(
-                    ()->new NoSuchEntityException(String.format(ServiceErrorCode.NEWS_ID_DOES_NOT_EXIST.getMessage(), patchRequest.getNewsId()))));
+        if (updateRequest.getNewsId() != null) {
+            model.setNews(newsRepository.findById(updateRequest.getNewsId()).orElseThrow(
+                    ()->new NoSuchEntityException(String.format(ServiceErrorCode.NEWS_ID_DOES_NOT_EXIST.getMessage(), updateRequest.getNewsId()))));
         }
-
-
+        commentRepository.flush();
         return CommentMapper.INSTANCE.toDto(model);
     }
 
@@ -81,9 +76,9 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Page<CommentDto> getAllByCriteria(int limit, int offset, String sortBy, String newsId, String content) {
-        Sort sort = Sort.by(sortBy);
-        Pageable pageable = PageRequest.of(offset -1, limit, sort);
+    public Page<CommentDto> getAllByNewsId(Long newsId, int limit, int offset, String sortBy, String content) {
+        Pageable pageable = PageRequest.of(offset -1, limit, SortUtils.getSort(sortBy));
+
         Specification<CommentModel> specs = filterByCriteria(newsId, content);
 
         Page<CommentModel> listModels = commentRepository.findAll(specs, pageable);
@@ -92,10 +87,9 @@ public class CommentServiceImpl implements CommentService {
         return new PageImpl<>(listDtos, pageable, listModels.getTotalElements());
     }
 
-    @Override
-    public List<CommentDto> getAllByNewsId(Long newsId) {
-        return CommentMapper.INSTANCE.toListDto(commentRepository.findAllByNewsId(newsId));
-    }
+
+
+
 
     private void isNewsIdExists(Long newsId) {
         if (!newsRepository.existsById(newsId)) {
@@ -103,16 +97,15 @@ public class CommentServiceImpl implements CommentService {
         }
     }
 
-    @IdValidate
-    private Specification<CommentModel> filterByCriteria(String newsId, String content) {
+    private Specification<CommentModel> filterByCriteria(Long newsId, String content) {
         Specification<CommentModel> resultSpecs = null;
 
         if (content != null) {
-            resultSpecs = CommentSpecifications.hasContentLike(content);
+            resultSpecs = CommentSpecifications.hasContentLike(content.trim());
         }
 
         if (newsId != null) {
-            Specification<CommentModel> newsIdSpec = CommentSpecifications.hasNewsIdLike(Long.parseLong(newsId));
+            Specification<CommentModel> newsIdSpec = CommentSpecifications.hasNewsIdLike(newsId);
             resultSpecs = resultSpecs == null ? newsIdSpec : resultSpecs.and(newsIdSpec);
         }
 

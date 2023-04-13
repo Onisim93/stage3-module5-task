@@ -32,9 +32,7 @@ public abstract class BaseValidator<E extends BaseDto<Long>> {
 
     public abstract void validate(E objectDto);
 
-    public abstract void validateId(Long id);
+    public abstract void validateUpdatedDto(E objectDto);
 
-    public boolean isNew(E entity) {
-        return entity.getId() == null;
-    }
+    public abstract void validateId(Long id);
 }

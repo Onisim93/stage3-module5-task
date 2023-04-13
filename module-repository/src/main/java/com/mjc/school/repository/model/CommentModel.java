@@ -27,8 +27,8 @@ public class CommentModel implements BaseEntity<Long>{
     private NewsModel news;
 
     @CreatedDate
-    private LocalDateTime createDate;
+    private LocalDateTime created;
     @LastModifiedDate
-    private LocalDateTime lastUpdateDate;
+    private LocalDateTime modified;
 
 }

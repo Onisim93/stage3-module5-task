@@ -1,6 +1,8 @@
 package com.mjc.school.repository.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -12,9 +14,7 @@ import java.util.List;
 @Entity
 @Table(name = "news")
 @EntityListeners(value = AuditingEntityListener.class)
-@Getter
-@Setter
-@EqualsAndHashCode
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class NewsModel implements BaseEntity<Long>{
@@ -26,14 +26,14 @@ public class NewsModel implements BaseEntity<Long>{
     private String content;
 
     @CreatedDate
-    private LocalDateTime createDate;
+    private LocalDateTime created;
     @LastModifiedDate
-    private LocalDateTime lastUpdateDate;
+    private LocalDateTime modified;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER)
     private AuthorModel author;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<TagModel> tags;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "news")
