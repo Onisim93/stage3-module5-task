@@ -48,6 +48,7 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public CommentDto create(CommentDto createRequest) {
         isNewsIdExists(createRequest.getNewsId());
+
         return CommentMapper.INSTANCE.toDto(commentRepository.saveAndFlush(CommentMapper.INSTANCE.toModel(createRequest)));
     }
 

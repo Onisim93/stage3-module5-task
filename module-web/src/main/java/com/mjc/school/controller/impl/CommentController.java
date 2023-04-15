@@ -18,7 +18,7 @@ import javax.validation.constraints.Min;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "api/v1.0/news/{newsId:\\d+}}")
+@RequestMapping(value = "api/v1.0/news/{newsId:\\d+}")
 @Api(value = "Operations for creating, updating, retrieving and deleting comments in the application")
 public class CommentController implements CommentRestController {
 
@@ -89,7 +89,7 @@ public class CommentController implements CommentRestController {
             @ApiResponse(code = 404, message = "The resource you were trying to reach is not found")
     })
     @PatchMapping(value = "/comments/{id:\\d+}")
-    public CommentDto update(@PathVariable Long id, @RequestBody CommentDto updateRequest) {
+    public CommentDto update(@PathVariable Long newsId, @PathVariable Long id, @RequestBody CommentDto updateRequest) {
         updateRequest.setId(id);
         CommentDto updated = commentService.update(updateRequest);
         CommentHateoasUtil.addHateoas(updated, true);

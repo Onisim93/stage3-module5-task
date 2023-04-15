@@ -15,7 +15,7 @@ public interface CommentRestController{
     CommentDto readById(Long newsId, Long id);
 
 
-    CommentDto update(Long id, CommentDto updateRequest);
+    CommentDto update(Long newsId, Long id, CommentDto updateRequest);
 
     ResponseEntity<Void> deleteById(Long newsId, Long id);
 }

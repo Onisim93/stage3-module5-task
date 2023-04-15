@@ -17,7 +17,7 @@ public class CommentHateoasUtil {
     private CommentHateoasUtil() {}
     public static void addHateoas(CommentDto commentDto, boolean withLinkToGetAll) {
         commentDto.add(linkTo(methodOn(CommentController.class).readById(commentDto.getNewsId(), commentDto.getId())).withSelfRel());
-        commentDto.add(linkTo(methodOn(CommentController.class).update(commentDto.getId(), commentDto)).withRel("update"));
+        commentDto.add(linkTo(methodOn(CommentController.class).update(commentDto.getNewsId(), commentDto.getId(), new CommentDto())).withRel("update").expand());
         commentDto.add(linkTo(methodOn(CommentController.class).deleteById(commentDto.getNewsId(), commentDto.getId())).withRel("delete"));
         if (withLinkToGetAll) {
             commentDto.add(linkTo(methodOn(CommentController.class).getAllByNewsId(commentDto.getNewsId(), 20, 1, null, null)).withRel("Get all comments").expand());
@@ -29,6 +29,7 @@ public class CommentHateoasUtil {
 
         List<Link> links = new ArrayList<>();
         links.add(linkTo(methodOn(CommentController.class).getAllByNewsId(newsId, limit, 1, sortBy, content)).withSelfRel().expand());
+        links.add(linkTo(methodOn(CommentController.class).create(newsId, new CommentDto())).withRel("create comment").expand());
 
         if (dtos.hasNext()) {
             links.add(linkTo(methodOn(CommentController.class).getAllByNewsId(newsId, limit, offset+1, sortBy, content)).withRel("next page").expand());

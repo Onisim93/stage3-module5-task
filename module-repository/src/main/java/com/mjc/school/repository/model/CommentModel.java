@@ -23,7 +23,7 @@ public class CommentModel implements BaseEntity<Long>{
 
     private String content;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     private NewsModel news;
 
     @CreatedDate

@@ -34,6 +34,7 @@ public class AuthorHateoasUtil {
 
         List<Link> links = new ArrayList<>();
         links.add(linkTo(methodOn(AuthorController.class).getAllByCriteria(limit, 1, null, null , null)).withSelfRel().expand(sortBy, name, newsId));
+        links.add(linkTo(methodOn(AuthorController.class).create(new AuthorDto())).withRel("create author").expand());
 
         if (dtos.hasNext()) {
             links.add(linkTo(methodOn(AuthorController.class).getAllByCriteria(limit, offset+1, null, null, null)).withRel("next page").expand(sortBy, name, newsId));

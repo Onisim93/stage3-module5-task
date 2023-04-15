@@ -19,6 +19,8 @@ public interface TagMapper {
     TagDto toDto (TagModel tagModel);
 
     @Mapping(target = "news", ignore = true)
+    @Mapping(target = "created", ignore = true)
+    @Mapping(target = "modified", ignore = true)
     TagModel toModel (TagDto tagDto);
 
     default List<TagDto> toListDto (List<TagModel> tagModelList) {

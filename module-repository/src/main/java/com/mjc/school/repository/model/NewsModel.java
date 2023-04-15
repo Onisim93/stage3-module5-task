@@ -39,4 +39,8 @@ public class NewsModel implements BaseEntity<Long>{
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "news")
     private List<CommentModel> comments;
 
+    public NewsModel(Long id) {
+        this.id = id;
+    }
+
 }

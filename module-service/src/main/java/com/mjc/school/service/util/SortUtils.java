@@ -16,7 +16,6 @@ public class SortUtils {
             case "created" -> Sort.by("created");
             case "modified" -> Sort.by("modified");
             case "id" -> Sort.by("id");
-            case "name" -> Sort.by("name");
             default -> Sort.unsorted();
         };
 

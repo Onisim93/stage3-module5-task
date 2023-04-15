@@ -20,7 +20,7 @@ public class TagHateoasUtil {
         tagDto.add(linkTo(methodOn(TagController.class).update(tagDto.getId(), tagDto)).withRel("update"));
         tagDto.add(linkTo(methodOn(TagController.class).deleteById(tagDto.getId())).withRel("delete"));
         if (withLinkToGetAll) {
-            tagDto.add(linkTo(methodOn(TagController.class).getAllByCriteria(20, 1, null, null, null)).withRel("Get all authors").expand(null, null, null));
+            tagDto.add(linkTo(methodOn(TagController.class).getAllByCriteria(20, 1, null, null, null)).withRel("Get all tags").expand(null, null, null));
         }
     }
 
@@ -45,6 +45,7 @@ public class TagHateoasUtil {
 
         List<Link> links = new ArrayList<>();
         links.add(linkTo(methodOn(TagController.class).getAllByNewsId(newsId, limit, 1, sortBy)).withSelfRel().expand());
+        links.add(linkTo(methodOn(TagController.class).create(new TagDto())).withRel("create tag"));
 
         if (dtos.hasNext()) {
             links.add(linkTo(methodOn(TagController.class).getAllByNewsId(newsId, limit, offset+1, sortBy)).withRel("next page").expand());
